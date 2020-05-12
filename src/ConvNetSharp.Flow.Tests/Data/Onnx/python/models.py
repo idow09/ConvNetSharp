@@ -5,7 +5,7 @@ from torch import nn
 class FCModel(Module):
     def __init__(self):
         super(FCModel, self).__init__()
-        self.fc = nn.Linear(28*28, 10)
+        self.fc = nn.Linear(28 * 28, 10)
 
     def forward(self, x):
         y = self.fc(x)
@@ -15,13 +15,14 @@ class FCModel(Module):
 class ConvModel(Module):
     def __init__(self):
         super(ConvModel, self).__init__()
-        self.conv1 = nn.Conv2d(1, 6, 5)
+        self.conv1 = nn.Conv2d(3, 8, 5, stride=1, padding=2)
         self.relu1 = nn.ReLU()
-        self.pool1 = nn.MaxPool2d(2)
-        self.conv2 = nn.Conv2d(6, 16, 5)
+        self.pool1 = nn.MaxPool2d(2, stride=2)
+        self.conv2 = nn.Conv2d(8, 16, 5, stride=1, padding=2)
         self.relu2 = nn.ReLU()
-        self.pool2 = nn.MaxPool2d(2)
-        self.conv_reshape = nn.Conv2d(16, 10, 4)
+        self.pool2 = nn.MaxPool2d(3, stride=3)
+        self.fc = nn.Linear(464896, 10)
+        self.softmax = nn.Softmax(dim=1)
 
     def forward(self, x):
         y = self.conv1(x)
@@ -30,7 +31,8 @@ class ConvModel(Module):
         y = self.conv2(y)
         y = self.relu2(y)
         y = self.pool2(y)
-        y = self.conv_reshape(y)
+        y = self.fc(y.view(y.shape[0], -1))
+        y = self.softmax(y)
         return y
 
 

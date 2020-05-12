@@ -1,0 +1,406 @@
+[
+  {
+    "input": [
+      "input",
+      "conv1.weight",
+      "conv1.bias"
+    ],
+    "output": [
+      "11"
+    ],
+    "opType": "Conv",
+    "attribute": [
+      {
+        "name": "dilations",
+        "ints": [
+          "1",
+          "1"
+        ],
+        "type": "INTS"
+      },
+      {
+        "name": "group",
+        "i": "1",
+        "type": "INT"
+      },
+      {
+        "name": "kernel_shape",
+        "ints": [
+          "5",
+          "5"
+        ],
+        "type": "INTS"
+      },
+      {
+        "name": "pads",
+        "ints": [
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        "type": "INTS"
+      },
+      {
+        "name": "strides",
+        "ints": [
+          "1",
+          "1"
+        ],
+        "type": "INTS"
+      }
+    ]
+  },
+  {
+    "input": [
+      "11"
+    ],
+    "output": [
+      "12"
+    ],
+    "opType": "Relu"
+  },
+  {
+    "input": [
+      "12"
+    ],
+    "output": [
+      "13"
+    ],
+    "opType": "MaxPool",
+    "attribute": [
+      {
+        "name": "ceil_mode",
+        "i": "0",
+        "type": "INT"
+      },
+      {
+        "name": "kernel_shape",
+        "ints": [
+          "2",
+          "2"
+        ],
+        "type": "INTS"
+      },
+      {
+        "name": "pads",
+        "ints": [
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        "type": "INTS"
+      },
+      {
+        "name": "strides",
+        "ints": [
+          "2",
+          "2"
+        ],
+        "type": "INTS"
+      }
+    ]
+  },
+  {
+    "input": [
+      "13",
+      "conv2.weight",
+      "conv2.bias"
+    ],
+    "output": [
+      "14"
+    ],
+    "opType": "Conv",
+    "attribute": [
+      {
+        "name": "dilations",
+        "ints": [
+          "1",
+          "1"
+        ],
+        "type": "INTS"
+      },
+      {
+        "name": "group",
+        "i": "1",
+        "type": "INT"
+      },
+      {
+        "name": "kernel_shape",
+        "ints": [
+          "5",
+          "5"
+        ],
+        "type": "INTS"
+      },
+      {
+        "name": "pads",
+        "ints": [
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        "type": "INTS"
+      },
+      {
+        "name": "strides",
+        "ints": [
+          "1",
+          "1"
+        ],
+        "type": "INTS"
+      }
+    ]
+  },
+  {
+    "input": [
+      "14"
+    ],
+    "output": [
+      "15"
+    ],
+    "opType": "Relu"
+  },
+  {
+    "input": [
+      "15"
+    ],
+    "output": [
+      "16"
+    ],
+    "opType": "MaxPool",
+    "attribute": [
+      {
+        "name": "ceil_mode",
+        "i": "0",
+        "type": "INT"
+      },
+      {
+        "name": "kernel_shape",
+        "ints": [
+          "2",
+          "2"
+        ],
+        "type": "INTS"
+      },
+      {
+        "name": "pads",
+        "ints": [
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        "type": "INTS"
+      },
+      {
+        "name": "strides",
+        "ints": [
+          "2",
+          "2"
+        ],
+        "type": "INTS"
+      }
+    ]
+  },
+  {
+    "input": [
+      "16"
+    ],
+    "output": [
+      "17"
+    ],
+    "opType": "Shape"
+  },
+  {
+    "output": [
+      "18"
+    ],
+    "opType": "Constant",
+    "attribute": [
+      {
+        "name": "value",
+        "t": {
+          "dataType": 7,
+          "rawData": "AAAAAAAAAAA="
+        },
+        "type": "TENSOR"
+      }
+    ]
+  },
+  {
+    "input": [
+      "17",
+      "18"
+    ],
+    "output": [
+      "19"
+    ],
+    "opType": "Gather",
+    "attribute": [
+      {
+        "name": "axis",
+        "i": "0",
+        "type": "INT"
+      }
+    ]
+  },
+  {
+    "input": [
+      "19"
+    ],
+    "output": [
+      "21"
+    ],
+    "opType": "Unsqueeze",
+    "attribute": [
+      {
+        "name": "axes",
+        "ints": [
+          "0"
+        ],
+        "type": "INTS"
+      }
+    ]
+  },
+  {
+    "input": [
+      "21",
+      "31"
+    ],
+    "output": [
+      "23"
+    ],
+    "opType": "Concat",
+    "attribute": [
+      {
+        "name": "axis",
+        "i": "0",
+        "type": "INT"
+      }
+    ]
+  },
+  {
+    "input": [
+      "16",
+      "23"
+    ],
+    "output": [
+      "24"
+    ],
+    "opType": "Reshape"
+  },
+  {
+    "input": [
+      "24",
+      "fc1.weight",
+      "fc1.bias"
+    ],
+    "output": [
+      "25"
+    ],
+    "opType": "Gemm",
+    "attribute": [
+      {
+        "name": "alpha",
+        "f": 1.0,
+        "type": "FLOAT"
+      },
+      {
+        "name": "beta",
+        "f": 1.0,
+        "type": "FLOAT"
+      },
+      {
+        "name": "transB",
+        "i": "1",
+        "type": "INT"
+      }
+    ]
+  },
+  {
+    "input": [
+      "25"
+    ],
+    "output": [
+      "26"
+    ],
+    "opType": "Relu"
+  },
+  {
+    "input": [
+      "26",
+      "fc2.weight",
+      "fc2.bias"
+    ],
+    "output": [
+      "27"
+    ],
+    "opType": "Gemm",
+    "attribute": [
+      {
+        "name": "alpha",
+        "f": 1.0,
+        "type": "FLOAT"
+      },
+      {
+        "name": "beta",
+        "f": 1.0,
+        "type": "FLOAT"
+      },
+      {
+        "name": "transB",
+        "i": "1",
+        "type": "INT"
+      }
+    ]
+  },
+  {
+    "input": [
+      "27"
+    ],
+    "output": [
+      "28"
+    ],
+    "opType": "Relu"
+  },
+  {
+    "input": [
+      "28",
+      "fc3.weight",
+      "fc3.bias"
+    ],
+    "output": [
+      "29"
+    ],
+    "opType": "Gemm",
+    "attribute": [
+      {
+        "name": "alpha",
+        "f": 1.0,
+        "type": "FLOAT"
+      },
+      {
+        "name": "beta",
+        "f": 1.0,
+        "type": "FLOAT"
+      },
+      {
+        "name": "transB",
+        "i": "1",
+        "type": "INT"
+      }
+    ]
+  },
+  {
+    "input": [
+      "29"
+    ],
+    "output": [
+      "output"
+    ],
+    "opType": "Relu"
+  }
+]

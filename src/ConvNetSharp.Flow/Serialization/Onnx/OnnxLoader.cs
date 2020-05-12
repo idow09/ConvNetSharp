@@ -79,25 +79,40 @@ namespace ConvNetSharp.Flow.Serialization.Onnx
 
             switch (node.OpType)
             {
+                case "Unsqueeze":
+                {
+                    op = this.GetUnsqueezeOp(node, seen);
+                }
+                    break;
+                case "Constant":
+                {
+                    op = this.GetConstantOp(node, seen);
+                }
+                    break;
+                case "Reshape":
+                {
+                    op = this.GetReshapeOp(node, seen);
+                }
+                    break;
                 case "Gemm":
-                    {
-                        op = this.GetGemmOp(node, seen);
-                    }
+                {
+                    op = this.GetGemmOp(node, seen);
+                }
                     break;
                 case "Conv":
-                    {
-                        op = this.GetConvOp(node, seen);
-                    }
+                {
+                    op = this.GetConvOp(node, seen);
+                }
                     break;
                 case "Relu":
-                    {
-                        op = this.GetReluOp(node, seen);
-                    }
+                {
+                    op = this.GetReluOp(node, seen);
+                }
                     break;
                 case "MaxPool":
-                    {
-                        op = this.GetMaxPoolOp(node, seen);
-                    }
+                {
+                    op = this.GetMaxPoolOp(node, seen);
+                }
                     break;
                 default:
                     throw new Exception($"Op '{node.OpType}' not implemented in ConvNetSharp");
@@ -111,7 +126,8 @@ namespace ConvNetSharp.Flow.Serialization.Onnx
         {
             var input = this.GetOp(node.Inputs[0], seen);
 
-            Op<T> op = new Activation<T>(this._cns, new Dictionary<string, object> { { "ActivationType", ActivationType.Relu.ToString() } });
+            Op<T> op = new Activation<T>(this._cns,
+                new Dictionary<string, object> {{"ActivationType", ActivationType.Relu.ToString()}});
             op.AddParent(input);
             return op;
         }
@@ -124,8 +140,9 @@ namespace ConvNetSharp.Flow.Serialization.Onnx
             {
                 ["Width"] = node.Attributes.First(o => o.Name == "kernel_shape").Ints[0].ToString(),
                 ["Height"] = node.Attributes.First(o => o.Name == "kernel_shape").Ints[1].ToString(),
-                ["HorizontalPad"] = node.Attributes.First(o => o.Name == "pads").Ints[0].ToString(), // TODO: use all pads
-                ["VerticalPad"] = node.Attributes.First(o => o.Name == "pads").Ints[2].ToString(),// TODO: use all pads
+                ["HorizontalPad"] =
+                    node.Attributes.First(o => o.Name == "pads").Ints[0].ToString(), // TODO: use all pads
+                ["VerticalPad"] = node.Attributes.First(o => o.Name == "pads").Ints[2].ToString(), // TODO: use all pads
                 ["HorizontalStride"] = node.Attributes.First(o => o.Name == "strides").Ints[0].ToString(),
                 ["VerticalStride"] = node.Attributes.First(o => o.Name == "strides").Ints[1].ToString(),
             };
@@ -149,7 +166,8 @@ namespace ConvNetSharp.Flow.Serialization.Onnx
                 ["Width"] = node.Attributes.First(o => o.Name == "kernel_shape").Ints[0].ToString(),
                 ["Height"] = node.Attributes.First(o => o.Name == "kernel_shape").Ints[1].ToString(),
                 ["Pad"] = node.Attributes.First(o => o.Name == "pads").Ints[0].ToString(), // TODO: use all pads
-                ["Stride"] = node.Attributes.First(o => o.Name == "strides").Ints[0].ToString(), // TODO: use all strides
+                ["Stride"] =
+                    node.Attributes.First(o => o.Name == "strides").Ints[0].ToString(), // TODO: use all strides
                 ["FilterCount"] = weightVolume.Shape.Dimensions[3].ToString()
             };
 
@@ -186,6 +204,30 @@ namespace ConvNetSharp.Flow.Serialization.Onnx
             return op;
         }
 
+        private Op<T> GetReshapeOp(NodeProto node, Dictionary<string, Op<T>> seen)
+        {
+            var input = this.GetOp(node.Inputs[0], seen);
+            var shape = this.GetOp(node.Inputs[1], seen);
+
+            return new Reshape<T>(this._cns, input, shape);
+        }
+
+        private Op<T> GetConstantOp(NodeProto node, Dictionary<string, Op<T>> seen)
+        {
+            var v = BuildVolume(node.Attributes.First(o => o.Name == "value").T);
+            
+            return new Const<T>(this._cns, v, "Constant");
+        }
+
+        private Op<T> GetUnsqueezeOp(NodeProto node, Dictionary<string, Op<T>> seen)
+        {
+            var input = this.GetOp(node.Inputs[0], seen);
+
+            var axes = node.Attributes.First(o => o.Name == "axes").Ints;
+
+            return new Reshape<T>(this._cns, input, new Shape(7256));
+        }
+
         /// <summary>
         ///     Make sure tensor type matches generic type T
         /// </summary>
@@ -193,26 +235,26 @@ namespace ConvNetSharp.Flow.Serialization.Onnx
         /// <returns>True if tensor type matches generic type T. False otherwise</returns>
         private static bool CheckType(TensorProto tensor)
         {
-            switch ((TensorProto.DataType)tensor.data_type)
+            switch ((TensorProto.DataType) tensor.data_type)
             {
                 case TensorProto.DataType.Float:
+                {
+                    if (typeof(T) == typeof(float))
                     {
-                        if (typeof(T) == typeof(float))
-                        {
-                            return true;
-                        }
-
-                        break;
+                        return true;
                     }
+
+                    break;
+                }
                 case TensorProto.DataType.Double:
+                {
+                    if (typeof(T) == typeof(double))
                     {
-                        if (typeof(T) == typeof(double))
-                        {
-                            return true;
-                        }
-
-                        break;
+                        return true;
                     }
+
+                    break;
+                }
             }
 
             return false;
@@ -226,7 +268,8 @@ namespace ConvNetSharp.Flow.Serialization.Onnx
         {
             if (!CheckType(tensor))
             {
-                throw new Exception($"Incompatible types: trying to load {(TensorProto.DataType)tensor.data_type} as {typeof(T).Name}");
+                throw new Exception(
+                    $"Incompatible types: trying to load {(TensorProto.DataType) tensor.data_type} as {typeof(T).Name}");
             }
         }
 
@@ -234,7 +277,7 @@ namespace ConvNetSharp.Flow.Serialization.Onnx
         {
             CheckTypeOrRaiseException(tensor);
 
-            var shape = Shape.From(tensor.Dims.Select(o => (int)o).ToArray(), Shape.DimensionOrder.NCWH);
+            var shape = Shape.From(tensor.Dims.Select(o => (int) o).ToArray(), Shape.DimensionOrder.NCWH);
             var span = new Span<byte>(tensor.RawData);
             var data = MemoryMarshal.Cast<byte, T>(span);
 

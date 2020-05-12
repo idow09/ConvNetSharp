@@ -70,9 +70,9 @@ namespace FluentMnistDemo
                 return false;
             }
 
-            this.Train = new DataSet(train_images);
-            this.Validation = new DataSet(valiation_images);
-            this.Test = new DataSet(testing_images);
+            Train = new DataSet(train_images);
+            Validation = new DataSet(valiation_images);
+            Test = new DataSet(testing_images);
 
             return true;
         }

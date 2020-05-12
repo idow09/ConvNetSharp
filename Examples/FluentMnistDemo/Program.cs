@@ -3,6 +3,7 @@ using System.Linq;
 using ConvNetSharp.Core;
 using ConvNetSharp.Core.Fluent;
 using ConvNetSharp.Core.Training;
+using ConvNetSharp.Core.Serialization;
 using Volume = ConvNetSharp.Volume.Volume<double>;
 
 namespace FluentMnistDemo
@@ -23,14 +24,14 @@ namespace FluentMnistDemo
 
         private void MnistDemo()
         {
-            var datasets = new DataSets();
-            if (!datasets.Load(100))
+            var datasets = new DataSetsLargeImages();
+            if (!datasets.Load(5))
             {
                 return;
             }
 
             // Create network
-            this._net = FluentNet<double>.Create(24, 24, 1)
+            this._net = FluentNet<double>.Create(400, 225, 1)
                 .Conv(5, 5, 8).Stride(1).Pad(2)
                 .Relu()
                 .Pool(2, 2).Stride(2)
@@ -44,7 +45,7 @@ namespace FluentMnistDemo
             this._trainer = new SgdTrainer<double>(this._net)
             {
                 LearningRate = 0.01,
-                BatchSize = 20,
+                BatchSize = 2,
                 Momentum = 0.9
             };
 
@@ -64,7 +65,17 @@ namespace FluentMnistDemo
                 Console.WriteLine("Example seen: {0} Fwd: {1}ms Bckw: {2}ms", this._stepCount,
                     Math.Round(this._trainer.ForwardTimeMs, 2),
                     Math.Round(this._trainer.BackwardTimeMs, 2));
+                    if (this._stepCount > 60000)
+                    {
+                        break;
+                    }
             } while (!Console.KeyAvailable);
+            
+            // Serialize to json 
+            var json = ((FluentNet<double>) this._net).ToJson(); 
+            System.IO.File.WriteAllText(@"../mnist_fluent.json", json);
+            
+            Console.WriteLine("Network Saved");
         }
 
         private void Test(Volume x, int[] labels, CircularBuffer<double> accuracy, bool forward = true)
